@@ -13,11 +13,9 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Judul Utama
 st.title("🏭 Analisis Clustering Cacat Produk Industri Manufaktur")
 st.markdown("Aplikasi interaktif untuk segmentasi cacat produksi berbasis *Machine Learning* (K-Means Clustering).")
 
-# Fungsi Load Data Aman
 @st.cache_data
 def load_data():
     df = pd.read_csv("defects_data.csv")
@@ -25,15 +23,12 @@ def load_data():
     df['severity_score'] = df['severity'].map(severity_mapping)
     return df
 
-# Validasi Keberadaan Data
 try:
     df = load_data()
     
-    # Sidebar
     st.sidebar.header("Pengaturan Model")
     optimal_k = st.sidebar.slider("Pilih Jumlah Klaster (K):", min_value=2, max_value=5, value=3)
 
-    # Proses Clustering
     X = df[['repair_cost', 'severity_score']]
     scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
@@ -41,7 +36,6 @@ try:
     kmeans_model = KMeans(n_clusters=optimal_k, init='k-means++', random_state=42, n_init=10)
     df['cluster_kmeans'] = kmeans_model.fit_predict(X_scaled)
 
-    # Pengaturan Tab
     tab1, tab2, tab3 = st.tabs(["📊 Visualisasi & Data", "💡 Interpretasi & Insight Bisnis", "🛠️ Prediksi Data Baru"])
 
     with tab1:
@@ -84,46 +78,22 @@ try:
         st.header("💡 Interpretasi Model & Insights Bisnis")
         st.markdown("""
         Berdasarkan hasil pembagian kelompok di atas, berikut adalah penjelasan karakteristik segmen cacat produksi:
-        
-        1. **🔴 Segmen Risiko Finansial Tinggi (High-Cost & Critical Defects):**
-           * **Karakteristik:** Klaster yang memiliki tingkat keparahan tinggi (*Critical*) dan rata-rata pengeluaran biaya perbaikan paling besar.
-           * **Insight Bisnis:** Jalur ini memerlukan intervensi segera berupa *Automated Testing* utama untuk mencegah pembengkakan biaya garansi.
-           
-        2. **🟢 Segmen Moderat (Medium Cost / Moderate Defects):**
-           * **Karakteristik:** Klaster dengan tingkat keparahan menengah dan biaya perbaikan yang cenderung stabil/sedang.
-           * **Insight Bisnis:** Diperlukan pelatihan berkala (*retraining*) bagi operator di area terkait untuk menekan angka *human error*.
-           
-        3. **🔵 Segmen Minoritas Efisien (Low-Cost / Minor Defects):**
-           * **Karakteristik:** Klaster dengan kerugian finansial kecil dan tingkat keparahan rendah (*Minor*).
-           * **Insight Bisnis:** Penanganan dapat dilakukan melalui inspeksi berkala reguler tanpa perlu alokasi biaya operasional yang besar.
+        1. **🔴 Segmen Risiko Finansial Tinggi (High-Cost & Critical Defects):** Potensi pembengkakan biaya garansi tinggi.
+        2. **🟢 Segmen Moderat (Medium Cost / Moderate Defects):** Butuh penanganan berkala/retraining operator.
+        3. **🔵 Segmen Minoritas Efisien (Low-Cost / Minor Defects):** Penanganan cukup dengan inspeksi visual reguler.
         """)
 
     with tab3:
         st.header("🛠️ Input Data Cacat Baru untuk Prediksi Klaster")
-        st.markdown("Masukkan data komponen cacat baru untuk mengetahui masuk ke dalam segmen/klaster mana.")
-        
         input_cost = st.number_input("Masukkan Biaya Perbaikan ($):", min_value=0.0, value=50.0, step=5.0)
         input_severity = st.selectbox("Pilih Tingkat Keparahan:", ['Minor', 'Moderate', 'Critical'])
-        
         severity_mapped = {'Minor': 1, 'Moderate': 2, 'Critical': 3}[input_severity]
         
         if st.button("Prediksi Klaster"):
             new_data = np.array([[input_cost, severity_mapped]])
             new_data_scaled = scaler.transform(new_data)
             pred_cluster = kmeans_model.predict(new_data_scaled)[0]
-            
             st.success(f"Data cacat baru masuk ke dalam **Klaster {pred_cluster}**")
-            
-            profil_kmeans = df.groupby('cluster_kmeans')['repair_cost'].mean()
-            max_cost_cluster = profil_kmeans.idxmax()
-            min_cost_cluster = profil_kmeans.idxmin()
-            
-            if pred_cluster == max_cost_cluster: 
-                st.warning("⚠️ **Rekomendasi:** Alokasikan tindakan perbaikan segera (Prioritas Utama) karena potensi pembengkakan biaya tinggi.")
-            elif pred_cluster == min_cost_cluster:
-                st.info("ℹ️ **Rekomendasi:** Lakukan penanganan standar sesuai standar operasional berkala.")
-            else:
-                st.success("💡 **Rekomendasi:** Berikan perhatian moderat berupa inspeksi operator berkala.")
 
 except FileNotFoundError:
-    st.error("❌ File 'defects_data.csv' belum ditemukan di repositori GitHub Anda. Silakan upload file dataset tersebut terlebih dahulu ke GitHub Anda agar aplikasi bisa membaca data.")
+    st.error("❌ File 'defects_data.csv' belum ditemukan.")
