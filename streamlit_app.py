@@ -1,4 +1,11 @@
+import os
+# Paksa server untuk menginstal library jika tidak terdeteksi
+os.system("pip install scikit-learn matplotlib seaborn")
+
 import streamlit as st
+import pandas as pd
+import numpy as np
+# ... sisa kode di bawahnya biarkan tetap sama seperti sebelumnya ...import streamlit as st
 import pandas as pd
 import numpy as np
 
