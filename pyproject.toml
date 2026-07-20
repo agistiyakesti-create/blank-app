@@ -1,3 +1,4 @@
+[project]
 name = "blank-app"
 version = "0.1.0"
 description = "Analisis Clustering Cacat Produk"
