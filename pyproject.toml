@@ -1,1 +1,11 @@
-[project]
+name = "blank-app"
+version = "0.1.0"
+description = "Analisis Clustering Cacat Produk"
+dependencies = [
+    "streamlit",
+    "pandas",
+    "numpy",
+    "scikit-learn",
+    "matplotlib",
+    "seaborn"
+]
