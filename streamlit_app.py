@@ -1,5 +1,4 @@
 import os
-# Paksa server untuk menginstal library jika tidak terdeteksi
 os.system("pip install scikit-learn matplotlib seaborn")
 
 import streamlit as st
